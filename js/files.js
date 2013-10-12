@@ -27,7 +27,9 @@ function loadFile (file, callback) {
 		return false;
 	}
 	
-	log("Loading file "+file.name+"... ");
+	if(verbose>=2) {
+		log("Loading file "+file.name+"... ");
+	}
 	var reader = new FileReader();
 	reader.onloadend = function(e) {
 		if (e.target.readyState == FileReader.DONE) {

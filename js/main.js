@@ -1,10 +1,19 @@
 var compat = false;
 var outputDir = "";
+var progressNth = 0; // this gets defined below once the filecount is known.
 
-var pedanticMode = false; // unused
-var verbose = true; // log individual key:value fields
+/* Logging levels:
+ * verbose>=0: errors only,
+ * verbose>=1: successful file saves,
+ * verbose>=2: loaded files, found components,
+ * verbose>=3: individual key:value fields
+ */
+var verbose = 1;
 var allFields = true;
-var prettyPrint = true;
+var prettyPrint = false;
+var pedanticMode = false; // unused
+var receiverPort = 8609;
+var receiverUrl = "http://localhost:"+receiverPort;
 
 /// needs:
 // util.js
@@ -22,6 +31,7 @@ $(document).ready(function () {
 	
 	$("#preset").change(function(){
 		files = loadDir(this, /\.avs$/);
+		progressNth = 1/files.length;
 		log("Found "+files.length+" files in directory.");
 		for (var i = 0; i < files.length; i++) {
 			loadFile(files[i], saveAvsAsJson);
@@ -30,13 +40,40 @@ $(document).ready(function () {
 });
 
 function saveAvsAsJson (preset, file) {
-	var json = convertPreset(preset, file);
-	var output = ('#output');
-	$(output).html(JSON.stringify(json, null, prettyPrint?'    ':null));
-	$(output).each(function(i, e) {hljs.highlightBlock(e)});
+	var json = JSON.stringify(
+			convertPreset(preset, file),
+			null, // special treatment? no. // jsonPrintSpecials
+			prettyPrint?'    ':null
+		);
+	// send output to receiver server
+	var saveRequest = $.ajax(
+			{
+				type: "POST",
+				url: receiverUrl,
+				data: {"json": json, "path": file.webkitRelativePath, "name": file.name},
+				async: false, // wait for the receiver to finish saving
+			}
+		);
+	
+	saveRequest.done(function(msg) {
+		var $curProgress = $('#progress').attr('value');
+		$curProgress = $curProgress+progressNth;
+		if(verbose) {
+			log("Receiver successfully")
+		}
+	});
+	
+	saveRequest.fail(function(jqXHR, textStatus) {
+		log("Receiver failed to save file '"+file.webkitRelativePath+file.name+"': "+textStatus);
+	});
+	
+	// website text output
+	//var output = ('#output');
+	//$(output).html(json);
+	//$(output).each(function(i, e) {hljs.highlightBlock(e)});
 }
 
-// not used - it's filespace wasted, but parsing easier...
+// not used - it's filespace wasted, but parsing is easier...
 function jsonPrintSpecials (k, v) {
 	// a 7x7 matrix in full json takes up an awful lot of space
 	if(k==="convolutionMatrix") {

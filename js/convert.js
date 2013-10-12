@@ -56,7 +56,9 @@ function getComponentIndex (code, blob, offset) {
 	if(code<builtinMax || code===0xfffffffe) {
 		for (var i = 0; i < componentTable.length; i++) {
 			if(code === componentTable[i].code) {
-				log("Found component: "+componentTable[i].name+" ("+code+")");
+				if(verbose>=2) {
+					log("Found component: "+componentTable[i].name+" ("+code+")");
+				}
 				return i;
 			}
 		};
@@ -64,7 +66,9 @@ function getComponentIndex (code, blob, offset) {
 		for (var i = builtinComponents.length; i < componentTable.length; i++) {
 			if(componentTable[i].code instanceof Array &&
 					cmpBytes(blob, offset+sizeInt, componentTable[i].code)) {
-				log("Found component: "+componentTable[i].name);
+				if(verbose>=2) {
+					log("Found component: "+componentTable[i].name);
+				}
 				return i;
 			}
 		};
@@ -210,7 +214,7 @@ function decode_generic (blob, offset, fields, name, end) {
 		
 		// save value or function result of value in field
 		comp[k] = value;
-		if(verbose)	log("k: "+k+", val: "+value+", offset: "+offset);
+		if(verbose>=3) log("k: "+k+", val: "+value+", offset: "+offset);
 		offset += size;
 	};
 	return comp;
