@@ -22,8 +22,10 @@
       <h2>AVS File Decoder</h2>
       <h5>Convert Winamp AVS files into Webvs-compatible JSON</h5>
       <div class="jumbotron">
-          <input type="file" id="preset" class="filestyle" data-classButton="btn btn-lg btn-success" data-input="false" data-buttonText="Load" />
-          <input type="button" class="btn btn-lg btn-danger" onclick="$('#log, #output').empty()" value="Clear" />
+          <input type="file" webkitdirectory id="preset" class="filestyle" data-classButton="btn btn-lg btn-success" data-input="false" data-buttonText="Load" />
+          <input type="button" class="btn btn-lg btn-danger" onclick="$('#log, #output').empty(); $('#progress').attr('value', 0);" value="Clear" />
+          <br>
+          <progress id="progress" value="0" max="100"></progress>
           <textarea id="log" readonly="readonly" onclick="this.focus();this.select()"></textarea>
           <pre><code id="output">{"message": "Please load file"}</code></pre>
       </div>

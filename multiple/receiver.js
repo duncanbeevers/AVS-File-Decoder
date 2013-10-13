@@ -11,9 +11,9 @@ http.createServer(function (request, response) {
 		});
 		request.on('end', function() {
 			var data = querystring.parse(body);
-			console.log("name:"+data.name);
-			console.log("path:"+data.path);
-			console.log("json:"+data.json.substr(0,100)+"[...]");
+			console.log("path: "+data.path);
+			//console.log("json: "+data.json.substr(0,100)+" [...]");
+			
 		});
 		
 		response.writeHead(201, {'Content-Type': 'text/plain'});

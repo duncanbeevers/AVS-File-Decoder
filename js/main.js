@@ -1,6 +1,5 @@
 var compat = false;
 var outputDir = "";
-var progressNth = 0; // this gets defined below once the filecount is known.
 
 /* Logging levels:
  * verbose>=0: errors only,
@@ -8,7 +7,7 @@ var progressNth = 0; // this gets defined below once the filecount is known.
  * verbose>=2: loaded files, found components,
  * verbose>=3: individual key:value fields
  */
-var verbose = 1;
+var verbose = 3;
 var allFields = true;
 var prettyPrint = false;
 var pedanticMode = false; // unused
@@ -31,7 +30,7 @@ $(document).ready(function () {
 	
 	$("#preset").change(function(){
 		files = loadDir(this, /\.avs$/);
-		progressNth = 1/files.length;
+		$("#progress").attr("max", files.length);
 		log("Found "+files.length+" files in directory.");
 		for (var i = 0; i < files.length; i++) {
 			loadFile(files[i], saveAvsAsJson);
@@ -46,18 +45,17 @@ function saveAvsAsJson (preset, file) {
 			prettyPrint?'    ':null
 		);
 	// send output to receiver server
-	var saveRequest = $.ajax(
-			{
-				type: "POST",
-				url: receiverUrl,
-				data: {"json": json, "path": file.webkitRelativePath, "name": file.name},
-				async: false, // wait for the receiver to finish saving
-			}
-		);
+	var saveRequest = $.ajax({
+			type: "POST",
+			url: receiverUrl,
+			data: {"json": json, "path": file.webkitRelativePath, "name": file.name},
+			async: false, // wait for the receiver to finish saving
+		});
+	var $curProgress = $("#progress");
+	$curProgress.attr("value", parseInt($curProgress.attr("value"))+1);
+	log("	+1 - "+file.name);
 	
 	saveRequest.done(function(msg) {
-		var $curProgress = $('#progress').attr('value');
-		$curProgress = $curProgress+progressNth;
 		if(verbose) {
 			log("Receiver successfully")
 		}
@@ -66,7 +64,6 @@ function saveAvsAsJson (preset, file) {
 	saveRequest.fail(function(jqXHR, textStatus) {
 		log("Receiver failed to save file '"+file.webkitRelativePath+file.name+"': "+textStatus);
 	});
-	
 	// website text output
 	//var output = ('#output');
 	//$(output).html(json);
