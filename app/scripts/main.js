@@ -17,9 +17,9 @@ var prettyPrint = true;
 $(document).ready(function () {
     checkCompat();
     log("File API check: "+(compat?"success":"fail")+".");
-    
+
     var files = [];
-    
+
     $("#preset").change(function(){
         files = loadDir(this, /\.avs$/);
         log("Found "+files.length+" files in directory.");
@@ -30,7 +30,13 @@ $(document).ready(function () {
 });
 
 function saveAvsAsJson (preset, file) {
-    var json = convertPreset(preset, file);
+    var preset = {
+        'name': file.name.substr(0,file.name.length-4),
+        'date': file.lastModifiedDate.toISOString(),
+        // 'author': '',
+    };
+
+    var json = convertPreset(preset, preset);
     var output = ('#output');
     $(output).html(JSON.stringify(json, null, prettyPrint?'    ':null));
     $(output).each(function(i, e) {hljs.highlightBlock(e)});

@@ -3,17 +3,18 @@ var presetHeaderLength = 25;
 var builtinMax = 16384;
 
 function log (message) {
-	$('#log').prepend(message+"\n");
+	// $('#log').prepend(message+"\n");
+	console.log(message);
 }
 
 function ConvertException (message) {
 	this.message = message;
-	this.name = "ConvertException";
+	this.name = 'ConvertException';
 }
 
 function cmpBytes (arr, offset, test) {
 	for (var i = 0; i < test.length; i++) {
-		if(test[i] === null){
+		if(test[i] === null) {
 			continue; // null means 'any value' - a variable
 		}
 		if(arr[i+offset] !== test[i]) {
@@ -25,7 +26,7 @@ function cmpBytes (arr, offset, test) {
 
 function getBit (blob, offset, pos) {
 	if(pos instanceof Array) {
-		if(pos.length!==2) new ConvertException("Wrong Bitfield range");
+		if(pos.length!==2) new ConvertException('Wrong Bitfield range');
 		var mask = (2<<(pos[1]-pos[0]))-1;
 		return [(blob[offset]>>pos[0])&mask, 1];
 	} else {
@@ -64,12 +65,12 @@ function getBool (blob, offset, size) {
 }
 
 function getBoolified (num) {
-	return num==0?false:true;
+	return !!num;
 }
 
 function getSizeString (blob, offset, size) {
 	var add = 0;
-	var result = "";
+	var result = '';
 	if(!size) {
 		size = getUInt32(blob, offset);
 		add = sizeInt;
@@ -85,7 +86,7 @@ function getSizeString (blob, offset, size) {
 }
 
 function getNtString (blob, offset) {
-	var result = "";
+	var result = '';
 	var i = offset;
 	var c = blob[i];
 	while(c>0) {
@@ -98,3 +99,22 @@ function getNtString (blob, offset) {
 function removeSpaces (str) {
 	return str.replace(/[ ]/g, '');
 }
+
+module.exports = {
+	sizeInt,
+	presetHeaderLength,
+	builtinMax,
+	log,
+	ConvertException,
+	getBit,
+	getBool,
+	getBoolified,
+	getFloat32,
+	getInt32,
+	getUInt32,
+	getUInt64,
+	getSizeString,
+	getNtString,
+	cmpBytes,
+	removeSpaces
+};
